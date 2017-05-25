@@ -105,6 +105,7 @@ class Limiter(object):
                  , swallow_errors=False
                  , in_memory_fallback=[]
                  , retry_after=None
+                 , outside_routes=set()
     ):
         self.app = app
         self.logger = logging.getLogger("flask-limiter")
@@ -113,7 +114,7 @@ class Limiter(object):
         self._default_limits = []
         self._application_limits = []
         self._in_memory_fallback = []
-        self._exempt_routes = set()
+        self._exempt_routes = outside_routes
         self._request_filters = []
         self._headers_enabled = headers_enabled
         self._header_mapping = {}
