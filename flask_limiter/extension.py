@@ -116,6 +116,7 @@ class Limiter(object):
         self._in_memory_fallback = []
         self._exempt_routes = outside_routes
         self._request_filters = []
+        self._request_blockers = []
         self._headers_enabled = headers_enabled
         self._header_mapping = {}
         self._retry_after = retry_after
@@ -324,6 +325,10 @@ class Limiter(object):
             or any(fn() for fn in self._request_filters)
         ):
             return
+
+        if any(fn() for fn in self._request_blockers):
+            raise RateLimitExceeded("")
+
         limits = (
             name in self._route_limits and self._route_limits[name]
             or []
@@ -544,6 +549,9 @@ class Limiter(object):
         self._request_filters.append(fn)
         return fn
 
+    def request_blocker(self, fn):
+        self._request_blockers.append(fn)
+        return fn
 
     def raise_global_limits_warning(self):
         warnings.warn(
